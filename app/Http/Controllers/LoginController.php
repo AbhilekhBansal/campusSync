@@ -11,7 +11,7 @@ class LoginController extends Controller
 {
     public function login(Request $request)
     {
-        return view('login');
+        return view('content.authentications.login');
     }
 
     public function authenticate(Request $request)
