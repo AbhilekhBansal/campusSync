@@ -3,7 +3,7 @@
     {
       "url": "/dashboard",
       "name": "Dashboards",
-      "icon": "menu-icon tf-icons bx bx-home-smile",
+      "icon": "menu-icon tf-icons fas fa-house",
       "slug": "dashboard"
     },
     {
@@ -11,16 +11,22 @@
     },
     {
       "url": "/admins",
-      "name": "Manage admins",
-      "icon": "fas fa-adjust",
+      "name": "Manage Admins",
+      "icon": "menu-icon tf-icons fas fa-user-shield ",
       "slug": "admins",
       "role": "superadmin"
     },
     {
       "url": "/teachers",
-      "name": "Manage teachers",
-      "icon": "menu-icon tf-icons bx bx-home-smile",
+      "name": "Manage Teachers",
+      "icon": "menu-icon tf-icons fas fa-chalkboard-user",
       "slug": "teachers"
+    },
+    {
+      "url": "/students",
+      "name": "Manage Students",
+      "icon": "menu-icon tf-icons fas fa-user-graduate",
+      "slug": "students"
     }
   ]
 }

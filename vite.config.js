@@ -8,4 +8,9 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    // resolve: {
+    //     alias: {
+    //         '~fontawesome': path.resolve(__dirname, 'node_modules/@fontawesome/fontawesome-free')
+    //     }
+    // }
 });
