@@ -1,3 +1,21 @@
+@php
+$role = auth()->user()->role;
+// dd($role);
+$menuFilePath = match ($role) {
+'admin', 'superadmin' => base_path('resources/menu/adminMenu.json'),
+'student' => base_path('resources/menu/studentMenu.json'),
+'teacher' => base_path('resources/menu/teacherMenu.json'),
+default => base_path('resources/menu/defaultMenu.json'),
+};
+$MenuData = null;
+
+
+// Load and decode the JSON file if the path exists
+if ($menuFilePath && file_exists($menuFilePath)) {
+$menuJson = file_get_contents($menuFilePath);
+$menuData = [json_decode($menuJson)]; // Decode as an associative array
+}
+@endphp;
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
 
   <!-- ! Hide app brand if navbar-full -->
@@ -21,6 +39,12 @@
     @foreach ($menuData[0]->menu as $menu)
 
     {{-- adding active and open class if child is active --}}
+    @isset($menu->role)
+    @if($menu->role === 'superadmin' && auth()->user()->role === 'admin')
+    @continue
+    @endif
+    @endisset
+
 
     {{-- menu headers --}}
     @if (isset($menu->menuHeader))
@@ -59,7 +83,7 @@
         class="{{ isset($menu->submenu) ? 'menu-link menu-toggle' : 'menu-link' }}" @if (isset($menu->target) and
         !empty($menu->target)) target="_blank" @endif>
         @isset($menu->icon)
-        <i class="{{ $menu->icon }}"></i>
+        <i class=" {{ $menu->icon }} "></i>
         @endisset
         <div>{{ isset($menu->name) ? __($menu->name) : '' }}</div>
         @isset($menu->badge)
@@ -72,6 +96,7 @@
       @include('layouts.sections.menu.submenu',['menu' => $menu->submenu])
       @endisset
     </li>
+
     @endif
     @endforeach
   </ul>

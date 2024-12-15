@@ -1,0 +1,26 @@
+{
+  "menu": [
+    {
+      "url": "/dashboard",
+      "name": "Dashboards",
+      "icon": "menu-icon tf-icons bx bx-home-smile",
+      "slug": "dashboard"
+    },
+    {
+      "menuHeader": "Pages"
+    },
+    {
+      "url": "/admins",
+      "name": "Manage admins",
+      "icon": "fas fa-adjust",
+      "slug": "admins",
+      "role": "superadmin"
+    },
+    {
+      "url": "/teachers",
+      "name": "Manage teachers",
+      "icon": "menu-icon tf-icons bx bx-home-smile",
+      "slug": "teachers"
+    }
+  ]
+}
