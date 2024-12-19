@@ -150,7 +150,7 @@ $containerNav = 'container-xxl';
                             <span>{{$student->student->roll_number}}</span>
                         </td>
                         <td><span>{{$student->student->class->name}}</span></td>
-                        <td><button onclick="teacherStatusChange({{$student->id}})"
+                        <td><button onclick="studentStatusChange({{$student->id}})"
                                 id='changeStatus-{{$student->id}}'>{!!$student->student->status==1 ? '<span
                                     class="badge badge-status bg-label-success me-1">Active</span>' :
                                 '<span class="badge badge-status bg-label-dark me-1">Inactive</span>'!!}</button></td>
@@ -158,10 +158,10 @@ $containerNav = 'container-xxl';
                             <div class="dropdown flex">
 
                                 <a class="dropdown-item edit-btn" href="javascript:void(0);"
-                                    onclick="getTeacher({{$student->id}})"><i class="bx bx-edit-alt me-1"></i>
+                                    onclick="getStudent({{$student->id}})"><i class="bx bx-edit-alt me-1"></i>
                                 </a>
                                 <a class="dropdown-item delete-btn" href="javascript:void(0);"
-                                    onclick="deleteTeacher({{$student->id}})"><i class="bx bx-trash me-1"></i>
+                                    onclick="deleteStudent({{$student->id}})"><i class="bx bx-trash me-1"></i>
                                 </a>
 
                             </div>
@@ -207,7 +207,7 @@ $containerNav = 'container-xxl';
                             <div class="col mb-3">
                                 <label for="studentClass" class="form-label">Class</label>
                                 <select id="studentClass" class="form-select">
-                                    <option>Select Class</option>
+                                    <option selected>Select Class</option>
                                     @foreach ($classes as $class)
                                     <option value="{{$class->id}}">{{$class->name}}</option>
 
@@ -373,9 +373,9 @@ $containerNav = 'container-xxl';
                                     </li>
                                     </ul>
                                 </td>
-                                <td><span>${$student->student->roll_number}</span></td>
+                                <td><span>${student.student.roll_number}</span></td>
                                 <td>
-                                    <span>${student.student.subject.name}</span>
+                                    <span>${student.student.class.name}</span>
                                 </td>
                                 <td> <button onclick="atudentStatusChange(${student.id})"
                                     id='changeStatus-${student.id}'>${student.student.status == 1
@@ -431,7 +431,7 @@ $containerNav = 'container-xxl';
                     submitButton.innerHTML = 'Processing...';
     
                     // Perform AJAX call for update admin
-                    const response = await fetch('/admin/teacher/' + id, {
+                    const response = await fetch('/admin/student/' + id, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -470,9 +470,9 @@ $containerNav = 'container-xxl';
                                     </li>
                                     </ul>
                                 </td>
-                                <td><span>${$student->student->roll_number}</span></td>
+                                <td><span>${student.student.roll_number}</span></td>
                                 <td>
-                                    <span>${student.student.subject.name}</span>
+                                    <span>${student.student.class.name}</span>
                                 </td>
                                 <td> <button onclick="atudentStatusChange(${student.id})"
                                     id='changeStatus-${student.id}'>${student.student.status == 1
@@ -525,15 +525,50 @@ $containerNav = 'container-xxl';
             }
         }
     });
-    
+    //reset modal on every close
+    const modalElement = document.getElementById('studentModal');
+    const form = document.getElementById('addStudentForm');
+
+    // Listen for the 'hidden.bs.modal' event, which triggers after the modal is closed
+    modalElement.addEventListener('hidden.bs.modal', function () {
+        // Reset the form fields when the modal is closed
+        form.reset();
+
+        const hiddenInput = document.getElementById('studentId');
+        const studentClass = document.getElementById('studentClass');
+        if (hiddenInput) {
+            hiddenInput.value = ''; // Set value to an empty string
+        }
+
+        if (studentClass) {
+        studentClass.innerHTML = ''; // Remove all options
+        
+        // Re-add a default placeholder option
+        const placeholderOption = document.createElement('option');
+        placeholderOption.text = 'Select Class';
+        placeholderOption.disabled = true;
+        placeholderOption.selected = true;
+        studentClass.appendChild(placeholderOption);
+
+        // Add the class options dynamically
+        @foreach ($classes as $class)
+        {
+            const option = document.createElement('option');
+            option.value = '{{ $class->id }}';  // Set the value of the option
+            option.text = '{{ $class->name }}';  // Set the display text for the option
+            studentClass.appendChild(option);  // Append the option to the select dropdown
+        }
+        @endforeach
+    }
+    });
     
     
 </script>
 <script>
-    async function teacherStatusChange(id) {
+    async function studentStatusChange(id) {
         try {
             // Perform AJAX call using fetch
-            const res = await fetch('/admin/teacher/' + id, {
+            const res = await fetch('/admin/student/' + id, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -549,12 +584,12 @@ $containerNav = 'container-xxl';
             // Check the status code and handle the response
             if (res.status === 200) {
                 document.getElementById('changeStatus-' + id).innerHTML =
-                    response.teacher.status === 1
+                    response.student.status === 1
                         ? '<span class="badge bg-label-success me-1">Active</span>'
                         : '<span class="badge bg-label-dark me-1">Inactive</span>';
             } else {
-                console.error('An error occurred while updating the teacher status.', response);
-                console.log('Failed to update teacher status. Please try again.');
+                console.error('An error occurred while updating the student status.', response);
+                console.log('Failed to update student status. Please try again.');
             }
         } catch (error) {
             // Handle fetch/network errors
@@ -564,12 +599,12 @@ $containerNav = 'container-xxl';
     }
     
     
-    function getTeacher(id) {
-        var myModal = new bootstrap.Modal(document.getElementById('teacherModal'), {});
+    function getStudent(id) {
+        var myModal = new bootstrap.Modal(document.getElementById('studentModal'), {});
         myModal.show();
     
         // Perform AJAX call to get admin data by ID
-        fetch('/admin/teacher/' + id, {
+        fetch('/admin/student/' + id, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -579,31 +614,32 @@ $containerNav = 'container-xxl';
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                populateForm(data.teacher);
+                populateForm(data.student);
             } else {
-                console.error('Failed to fetch admin data:', data.error);
+                console.error('Failed to fetch student data:', data.error);
             }
         })
         .catch(error => {
-            console.error('Error fetching admin data:', error);
+            console.error('Error fetching student data:', error);
         });
     }
     
-    function populateForm(teacher) {
-        document.getElementById('teacherName').value = teacher.name;
-        document.getElementById('teacherEmail').value = teacher.email;
-        document.getElementById('teacherId').value = teacher.id;
-        // document.getElementById('teacherSubject').innerhtml = '<option value='+teacher.teacher.subject_id+' selected>'+teacher.teacher.subject.name+'</option>';
+    function populateForm(student) {
+        document.getElementById('studentName').value = student.name;
+        document.getElementById('studentEmail').value = student.email;
+        document.getElementById('studentId').value = student.id;
+        document.getElementById('studentRoll').value = student.student.roll_number;
+        
 
-        const teacherSubject = document.getElementById('teacherSubject');
-        const subjectOption = document.createElement('option');
+        const studentClass = document.getElementById('studentClass');
+        const classOption = document.createElement('option');
 
-        subjectOption.value = teacher.teacher.subject_id;
-        subjectOption.textContent = teacher.teacher.subject.name;
-        subjectOption.selected = true;
+        classOption.value = student.student.class_id;
+        classOption.textContent = student.student.class.name;
+        classOption.selected = true;
 
         // teacherSubject.appendChild(subjectOption);
-        teacherSubject.insertBefore(subjectOption, teacherSubject.firstChild); // Insert at the top
+        studentClass.insertBefore(classOption, studentClass.firstChild); // Insert at the top
 
     }
     

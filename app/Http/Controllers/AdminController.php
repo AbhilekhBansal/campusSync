@@ -223,31 +223,32 @@ class AdminController extends Controller
     public function getStudent(Request $request)
     {
         $validatedData = Validator::make(['id' => (int)$request->id], [
-            'id' => 'required|integer|exists:teachers,user_id',
+            'id' => 'required|integer|exists:students,user_id',
         ]);
         if ($validatedData->fails()) {
-            return response()->json(['error' => $validatedData->errors()], 400);
+            return response()->json(['errors' => $validatedData->errors()], 400);
         }
-        $teacher = User::with(['teacher.subject'])->where('id', $request->id)->first();
+        $student = User::with(['student.class'])->where('id', $request->id)->first();
         // return $teacher;
-        return response()->json(['success' => 'Teacher fetched successfully!', 'teacher' => $teacher], 200);
+        return response()->json(['success' => 'Student fetched successfully!', 'student' => $student], 200);
     }
 
     public function updateStudent(Request $request, $id)
     {
         $validatedData = Validator::make(array_merge($request->all(), ["id" => $id]), [
-            'id' => 'required|integer|exists:teachers,user_id',
+            'id' => 'required|integer|exists:students,user_id',
             'name' => 'nullable|string|max:255',
             'email' => 'nullable|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:6',
-            'subject' => 'nullable|integer|exists:subjects,id',
+            'class' => 'nullable|integer|exists:class,id',
+            'roll' => 'nullable|integer|unique:students,roll_number,' . $id . ',user_id',
         ])->after(function ($validator) use ($request) {
 
             if (
                 !$request->filled('name') && !$request->filled('email') &&
-                !$request->filled('password') && !$request->filled('subject')
+                !$request->filled('password') && !$request->filled('class') && !$request->filled('roll')
             ) {
-                $validator->errors()->add('fields', 'At least one field (name, email, subject, or password) must be provided.');
+                $validator->errors()->add('fields', 'At least one field (name, email, subject, roll, or password) must be provided.');
             }
         });
 
@@ -255,35 +256,35 @@ class AdminController extends Controller
             return response()->json(['error' => $validatedData->errors()], 400);
         }
 
-        $teacher = User::where('id', $id)->first();
-        if (!$teacher) {
+        $student = User::where('id', $id)->first();
+        if (!$student) {
             return response()->json(['error' => 'Teacher not found'], 404);
         }
 
         if ($request->filled('name')) {
-            $teacher->name = $request->name;
+            $student->name = $request->name;
         }
 
         if ($request->filled('email')) {
-            $teacher->email = $request->email;
+            $student->email = $request->email;
         }
 
         if ($request->filled('password')) {
-            $teacher->password = bcrypt($request->password);
+            $student->password = bcrypt($request->password);
         }
 
-        $teacher->save();
+        $student->save();
 
-        if ($request->filled('subject')) {
-            $teacher->teacher->subject_id = $request->subject;
-            $teacher->teacher->save();
+        if ($request->filled('class')) {
+            $student->student->class_id = $request->class;
+            $student->student->save();
         }
 
-        $teachers = User::with(['teacher.subject'])->where('role', 'teacher')->get();
+        $students = User::with(['student.class'])->where('role', 'student')->get();
 
         return response()->json([
-            'success' => 'Teacher updated successfully!',
-            'teachers' => $teachers,
+            'success' => 'Student updated successfully!',
+            'students' => $students,
         ], 200);
     }
 
