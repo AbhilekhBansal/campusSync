@@ -155,13 +155,19 @@ class AdminController extends Controller
 
     public function createStudent(Request $request)
     {
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
             'studentClass' => 'required|integer|exists:classes,id',
-            'roll' => 'required|integer|min:10,max:10',
+            'roll' => 'required|integer|unique:students,roll_number|digits:10',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $validatedData = $validator->validated();
 
 
         $student = User::create([
@@ -177,10 +183,16 @@ class AdminController extends Controller
             'roll_number' => $validatedData['roll'],
             'status' => 1,
         ]);
+
         $students = User::with(['student.class'])->where('role', '=', 'student')->get();
-        // return $students;
-        return response()->json(['success' => 'Student added successfully!', 'students' => $students], 201);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Student added successfully!',
+            'students' => $students,
+        ], 201);
     }
+
 
     public function updateStudentStatus(Request $request)
     {

@@ -6,6 +6,12 @@ use Illuminate\Support\Facades\Route;
   @if (isset($menu))
   @foreach ($menu as $submenu)
 
+  @isset($submenu->role)
+  @if($submenu->role === 'superadmin' && auth()->user()->role === 'admin')
+  @continue
+  @endif
+  @endisset
+
   {{-- active menu method --}}
   @php
   $activeClass = null;

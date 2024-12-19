@@ -120,16 +120,16 @@ $containerNav = 'container-xxl';
                     <tr>
                         <th>Id</th>
                         <th>Profile</th>
-                        {{-- <th>Email</th> --}}
+                        <th>Roll no.</th>
                         <th>Class</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody class="table-border-bottom-0 " id="teachersList">
+                <tbody class="table-border-bottom-0 " id="studentsList">
                     @foreach ($students as $index => $student)
 
-                    <tr id="teacherlist-{{$student->id}}">
+                    <tr id="studentlist-{{$student->id}}">
                         <td><span>{{$index+1}}</span></td>
                         <td>
                             <ul class="list-unstyled m-0 avatar-group d-flex align-items-center">
@@ -146,9 +146,9 @@ $containerNav = 'container-xxl';
                                 </li>
                             </ul>
                         </td>
-                        {{-- <td>
-                            <span>{{$teach->email}}</span>
-                        </td> --}}
+                        <td>
+                            <span>{{$student->student->roll_number}}</span>
+                        </td>
                         <td><span>{{$student->student->class->name}}</span></td>
                         <td><button onclick="teacherStatusChange({{$student->id}})"
                                 id='changeStatus-{{$student->id}}'>{!!$student->student->status==1 ? '<span
@@ -342,20 +342,20 @@ $containerNav = 'container-xxl';
     
                     // Parse JSON response
                     const result = await response.json();
-    
+                    console.log(result);
                     if (response.status == 201) {
     
                         // Reset form
                         this.reset();
-                        console.log(result);
+                        // console.log(result);
     
-                        // update teacher list
-                        const teachersList = document.getElementById('teachersList');
+                        // update student list
+                        const studentsList = document.getElementById('studentsList');
                         console.log(result);
-                        let teachersListData = '';
-                        $.each(result.teachs, function (index, teach) {
+                        let studentsListData = '';
+                        $.each(result.students, function (index, student) {
     
-                            teachersListData += `
+                            studentsListData += `
                             <tr>
                                 <td><span>${index + 1}</span></td>
                                 <td>
@@ -367,26 +367,27 @@ $containerNav = 'container-xxl';
                                         </li>
                                         <li>
                                         <ul>
-                                            <li><span>${teach.name}</span></li>
-                                            <li><span>${teach.email}</span></li>
+                                            <li><span>${student.name}</span></li>
+                                            <li><span>${student.email}</span></li>
                                         </ul>
                                     </li>
                                     </ul>
                                 </td>
+                                <td><span>${$student->student->roll_number}</span></td>
                                 <td>
-                                    <span>${teach.teacher.subject.name}</span>
+                                    <span>${student.student.subject.name}</span>
                                 </td>
-                                <td> <button onclick="teacherStatusChange(${teach.id})"
-                                    id='changeStatus-${teach.id}'>${teach.teacher.status == 1
+                                <td> <button onclick="atudentStatusChange(${student.id})"
+                                    id='changeStatus-${student.id}'>${student.student.status == 1
                                     ? '<span class="badge bg-label-success me-1">Active</span>'
                                     : '<span class="badge bg-label-dark me-1">Inactive</span>'} </button></td>
                                 <td>
                                     <div class="dropdown flex">
                                          <a class="dropdown-item edit-btn" href="javascript:void(0);"
-                                        onclick="getTeacher(${teach.id})"><i class="bx bx-edit-alt me-1"></i>
+                                        onclick="getStudent(${student.id})"><i class="bx bx-edit-alt me-1"></i>
                                     </a>
                                     <a class="dropdown-item delete-btn" href="javascript:void(0);"
-                                        onclick="deleteTeacher(${teach.id})"><i class="bx bx-trash me-1"></i>
+                                        onclick="deleteStudent(${student.id})"><i class="bx bx-trash me-1"></i>
                                     </a>
                                     </div>
                                 </td>
@@ -394,14 +395,27 @@ $containerNav = 'container-xxl';
                             `;
                         });
     
-                        teachersList.innerHTML = teachersListData;
+                        studentsList.innerHTML = studentsListData;
                         // Close modal (Bootstrap 5 method)
-                        const modalElement = document.getElementById('teacherModal');
+                        const modalElement = document.getElementById('studentModal');
                         const modal = bootstrap.Modal.getInstance(modalElement);
                         modal.hide();
                     } else {
-                        // Handle validation or server-side errors
-                        console.log(result.message || 'An error occurred while adding the admin.');
+                        // Validation errors
+                        const errors = result.errors; // Validation errors from server
+                        console.log('Validation Errors:', errors);
+
+                        let errorMessages = '';
+                        for (let field in errors) {
+                            const errorElement = document.getElementById(`${field}Error`);
+                            console.log(`${field}Error`)
+                            console.log("error feild", errorElement);
+                            if (errorElement) {
+                                errorElement.textContent = errors[field][0];
+                                errorElement.classList.remove('d-none');
+
+                            }
+                        }
                     }
                 } catch (error) {
                     console.error('Error:', error);
@@ -423,7 +437,7 @@ $containerNav = 'container-xxl';
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         },
-                        body: JSON.stringify({ name, email,subject, password }),
+                        body: JSON.stringify({name, email, password, studentClass,roll}),
                     });
     
                     const result = await response.json();
@@ -432,13 +446,13 @@ $containerNav = 'container-xxl';
     
                         this.reset();
     
-                        // update teacher list
-                        const teachersList = document.getElementById('teachersList');
+                        // update teachestudentr list
+                        const studentsList = document.getElementById('studentsList');
                         console.log(result);
-                        let teachersListData = '';
-                        $.each(result.teachers, function (index, teach) {
+                        let studentsListData = '';
+                        $.each(result.students, function (index, student) {
     
-                            teachersListData += `
+                            studentsListData += `
                             <tr>
                                 <td><span>${index + 1}</span></td>
                                 <td>
@@ -450,26 +464,27 @@ $containerNav = 'container-xxl';
                                         </li>
                                         <li>
                                         <ul>
-                                            <li><span>${teach.name}</span></li>
-                                            <li><span>${teach.email}</span></li>
+                                            <li><span>${student.name}</span></li>
+                                            <li><span>${student.email}</span></li>
                                         </ul>
                                     </li>
                                     </ul>
                                 </td>
+                                <td><span>${$student->student->roll_number}</span></td>
                                 <td>
-                                    <span>${teach.teacher.subject.name}</span>
+                                    <span>${student.student.subject.name}</span>
                                 </td>
-                                <td> <button onclick="teacherStatusChange(${teach.id})"
-                                    id='changeStatus-${teach.id}'>${teach.teacher.status == 1
+                                <td> <button onclick="atudentStatusChange(${student.id})"
+                                    id='changeStatus-${student.id}'>${student.student.status == 1
                                     ? '<span class="badge bg-label-success me-1">Active</span>'
                                     : '<span class="badge bg-label-dark me-1">Inactive</span>'} </button></td>
                                 <td>
                                     <div class="dropdown flex">
                                          <a class="dropdown-item edit-btn" href="javascript:void(0);"
-                                        onclick="getTeacher(${teach.id})"><i class="bx bx-edit-alt me-1"></i>
+                                        onclick="getStudent(${student.id})"><i class="bx bx-edit-alt me-1"></i>
                                     </a>
                                     <a class="dropdown-item delete-btn" href="javascript:void(0);"
-                                        onclick="deleteTeacher(${teach.id})"><i class="bx bx-trash me-1"></i>
+                                        onclick="deleteStudent(${student.id})"><i class="bx bx-trash me-1"></i>
                                     </a>
                                     </div>
                                 </td>
@@ -477,14 +492,27 @@ $containerNav = 'container-xxl';
                             `;
                         });
     
-                        teachersList.innerHTML = teachersListData;
+                        studentsList.innerHTML = studentsListData;
                         // Close modal (Bootstrap 5 method)
-                        const modalElement = document.getElementById('teacherModal');
+                        const modalElement = document.getElementById('studentModal');
                         const modal = bootstrap.Modal.getInstance(modalElement);
                         modal.hide();
                     } else {
-                        // Handle validation or server-side errors
-                        console.log(result.message || 'An error occurred while adding the teacher.');
+                        // Validation errors
+                        const errors = result.errors; // Validation errors from server
+                        console.log('Validation Errors:', errors);
+
+                        let errorMessages = '';
+                        for (let field in errors) {
+                            const errorElement = document.getElementById(`${field}Error`);
+                            console.log(`${field}Error`)
+                            console.log("error feild", errorElement);
+                            if (errorElement) {
+                                errorElement.textContent = errors[field][0];
+                                errorElement.classList.remove('d-none');
+
+                            }
+                        }
                     }
                 } catch (error) {
                     console.error('Error:', error);

@@ -23,8 +23,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+Route::middleware(['auth', 'role:superadmin'])->prefix('admin')->group(function () {
     // manage admins
     Route::get('/admins', [AdminController::class, 'manageAdmin'])->name('admins');
     Route::get('/admin/{id}', [AdminController::class, 'getAdmin'])->name('admin');
@@ -32,6 +31,10 @@ Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin')->group(fun
     Route::patch('/admin/{id}', [AdminController::class, 'updateAdminStatus'])->name('.admin');
     Route::put('/admin/{id}', [AdminController::class, 'updateAdmin'])->name('admin');
     Route::delete('/admin/{id}', [AdminController::class, 'deleteAdmin'])->name('admin');
+});
+
+Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
     // manage teachers
     Route::get('/teachers', [AdminController::class, 'manageTeachers'])->name('teachers');
