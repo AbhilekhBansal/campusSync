@@ -5,7 +5,7 @@ $containerNav = 'container-xxl';
 
 @extends('layouts/contentNavbarLayout')
 
-@section('title', 'Manage Teachers')
+@section('title', 'Manage Students')
 
 @section('content')
 <!-- Layout Demo -->
@@ -20,13 +20,13 @@ $containerNav = 'container-xxl';
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="content-left">
-                            <span class="text-heading">Total Teachers</span>
+                            <span class="text-heading">Total Students</span>
                             <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{count($teachs)}}</h4>
+                                <h4 class="mb-0 me-2">{{count($students)}}</h4>
 
                                 {{-- <p class="text-success mb-0">(+29%)</p> --}}
                             </div>
-                            <small class="mb-0">Total Teachers</small>
+                            <small class="mb-0">Total Students</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-primary">
@@ -63,17 +63,16 @@ $containerNav = 'container-xxl';
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="content-left">
-                            <span class="text-heading">Active Teachers</span>
+                            <span class="text-heading">Total Classes</span>
                             <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $teachs->filter(fn($teachs) => $teachs->teacher['status'] ===
-                                    1)->count() }}</h4>
-                                {{-- <p class="text-danger mb-0">(-14%)</p> --}}
+                                <h4 class="mb-0 me-2">{{$classes->count()}}</h4>
+                                {{-- <p class="text-success mb-0">(+42%)</p> --}}
                             </div>
-                            <small class="mb-0">Total Teachers ({{count($teachs)}})</small>
+                            <small class="mb-0">All classes are unique</small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-success">
-                                <i class="bx bx-user-check bx-lg"></i>
+                            <span class="avatar-initial rounded bg-label-warning">
+                                <i class="fas fa-chalkboard "></i>
                             </span>
                         </div>
                     </div>
@@ -85,22 +84,25 @@ $containerNav = 'container-xxl';
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="content-left">
-                            <span class="text-heading">Pending Users</span>
+                            <span class="text-heading">Active Students</span>
                             <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">237</h4>
-                                <p class="text-success mb-0">(+42%)</p>
+                                <h4 class="mb-0 me-2">{{ $students->filter(fn($students) => $students->student['status']
+                                    ===
+                                    1)->count() }}</h4>
+                                {{-- <p class="text-danger mb-0">(-14%)</p> --}}
                             </div>
-                            <small class="mb-0">Last week analytics</small>
+                            <small class="mb-0">Total Students ({{count($students)}})</small>
                         </div>
                         <div class="avatar">
-                            <span class="avatar-initial rounded bg-label-warning">
-                                <i class="bx bx-user-voice bx-lg"></i>
+                            <span class="avatar-initial rounded bg-label-success">
+                                <i class="bx bx-user-check bx-lg"></i>
                             </span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
     <!-- Users List Table -->
     <div class="card">
@@ -108,8 +110,8 @@ $containerNav = 'container-xxl';
 
             <h5 class="card-header flex-1">Student List</h5>
             <button type="button" class="btn btn-primary p-2 m-auto !mr-2" data-bs-toggle="modal"
-                data-bs-target="#teacherModal">
-                <i class="fas fa-plus mr-2"></i> Add Teach
+                data-bs-target="#studentModal">
+                <i class="fas fa-plus mr-2"></i> Add Student
             </button>
         </div>
         <div class="table-responsive text-nowrap">
@@ -117,17 +119,17 @@ $containerNav = 'container-xxl';
                 <thead>
                     <tr>
                         <th>Id</th>
-                        <th>Name</th>
+                        <th>Profile</th>
                         {{-- <th>Email</th> --}}
-                        <th>Subject</th>
+                        <th>Class</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody class="table-border-bottom-0 " id="teachersList">
-                    @foreach ($teachs as $index => $teach)
+                    @foreach ($students as $index => $student)
 
-                    <tr id="teacherlist-{{$teach->id}}">
+                    <tr id="teacherlist-{{$student->id}}">
                         <td><span>{{$index+1}}</span></td>
                         <td>
                             <ul class="list-unstyled m-0 avatar-group d-flex align-items-center">
@@ -138,8 +140,8 @@ $containerNav = 'container-xxl';
                                 </li>
                                 <li>
                                     <ul>
-                                        <li><span>{{$teach->name}}</span></li>
-                                        <li><span>{{$teach->email}}</span></li>
+                                        <li><span>{{$student->name}}</span></li>
+                                        <li><span>{{$student->email}}</span></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -147,19 +149,19 @@ $containerNav = 'container-xxl';
                         {{-- <td>
                             <span>{{$teach->email}}</span>
                         </td> --}}
-                        <td><span>{{$teach->teacher->subject->name}}</span></td>
-                        <td><button onclick="teacherStatusChange({{$teach->id}})"
-                                id='changeStatus-{{$teach->id}}'>{!!$teach->teacher->status==1 ? '<span
+                        <td><span>{{$student->student->class->name}}</span></td>
+                        <td><button onclick="teacherStatusChange({{$student->id}})"
+                                id='changeStatus-{{$student->id}}'>{!!$student->student->status==1 ? '<span
                                     class="badge badge-status bg-label-success me-1">Active</span>' :
                                 '<span class="badge badge-status bg-label-dark me-1">Inactive</span>'!!}</button></td>
                         <td>
                             <div class="dropdown flex">
 
                                 <a class="dropdown-item edit-btn" href="javascript:void(0);"
-                                    onclick="getTeacher({{$teach->id}})"><i class="bx bx-edit-alt me-1"></i>
+                                    onclick="getTeacher({{$student->id}})"><i class="bx bx-edit-alt me-1"></i>
                                 </a>
                                 <a class="dropdown-item delete-btn" href="javascript:void(0);"
-                                    onclick="deleteTeacher({{$teach->id}})"><i class="bx bx-trash me-1"></i>
+                                    onclick="deleteTeacher({{$student->id}})"><i class="bx bx-trash me-1"></i>
                                 </a>
 
                             </div>
@@ -173,21 +175,21 @@ $containerNav = 'container-xxl';
         </div>
     </div>
     <!-- Modal -->
-    <div class="modal fade" id="teacherModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel1">Add Teacher</h5>
+                    <h5 class="modal-title" id="exampleModalLabel1">Add Student</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="addTeacherForm">
+                <form id="addStudentForm">
                     <div class="modal-body">
-                        <input type="hidden" id="teacherId" name="id" value="">
+                        <input type="hidden" id="studentId" name="id" value="">
                         <!-- Name Field -->
                         <div class="row">
                             <div class="col mb-3">
-                                <label for="teacherName" class="form-label">Name</label>
-                                <input type="text" id="teacherName" class="form-control" placeholder="Enter Name">
+                                <label for="studentName" class="form-label">Name</label>
+                                <input type="text" id="studentName" class="form-control" placeholder="Enter Name">
                                 <small class="text-danger d-none" id="nameError">Name is required.</small>
                             </div>
                         </div>
@@ -195,23 +197,29 @@ $containerNav = 'container-xxl';
                         <!-- Email Field -->
                         <div class="row g-3">
                             <div class="col mb-3">
-                                <label for="teacherEmail" class="form-label">Email</label>
-                                <input type="email" id="teacherEmail" class="form-control" placeholder="xxxx@xxx.xx">
+                                <label for="studentEmail" class="form-label">Email</label>
+                                <input type="email" id="studentEmail" class="form-control" placeholder="xxxx@xxx.xx">
                                 <small class="text-danger d-none" id="emailError">Please enter a valid email.</small>
                             </div>
 
                         </div>
                         <div class="row g-3">
                             <div class="col mb-3">
-                                <label for="teacherSubject" class="form-label">Subject</label>
-                                <select id="teacherSubject" class="form-select">
-                                    <option>Default select</option>
-                                    @foreach ($subjects as $subject)
-                                    <option value="{{$subject->id}}">{{$subject->name}}</option>
+                                <label for="studentClass" class="form-label">Class</label>
+                                <select id="studentClass" class="form-select">
+                                    <option>Select Class</option>
+                                    @foreach ($classes as $class)
+                                    <option value="{{$class->id}}">{{$class->name}}</option>
 
                                     @endforeach
                                 </select>
-                                <small class="text-danger d-none" id="subjectError">Please select a subject.</small>
+                                <small class="text-danger d-none" id="classError">Please select a class.</small>
+                            </div>
+                            <div class="col mb-3">
+                                <label for="studentRoll" class="form-label">RollNumber</label>
+                                <input type="text" id="studentRoll" class="form-control" placeholder="2024xxxxxx"
+                                    maxlength="10" pattern="\d{10}" required>
+                                <small class="text-danger d-none" id="rollError">Please enter a Roll no.</small>
                             </div>
                         </div>
 
@@ -233,7 +241,7 @@ $containerNav = 'container-xxl';
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary !m-2"
                             data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary addTeacherButton !m-2">Save changes</button>
+                        <button type="submit" class="btn btn-primary addStudentButton !m-2">Save changes</button>
                     </div>
                 </form>
             </div>
@@ -249,15 +257,16 @@ $containerNav = 'container-xxl';
 
 <!--/ Layout Demo -->
 <script>
-    //add teacher form 
-    document.getElementById('addTeacherForm').addEventListener('submit', async function (e) {
+    //add student form 
+    document.getElementById('addStudentForm').addEventListener('submit', async function (e) {
         e.preventDefault(); // Prevent form submission
     
         // Get form values
-        const id = document.getElementById('teacherId').value.trim();
-        const name = document.getElementById('teacherName').value.trim();
-        const email = document.getElementById('teacherEmail').value.trim();
-        const subject = document.getElementById('teacherSubject').value.trim();
+        const id = document.getElementById('studentId').value.trim();
+        const name = document.getElementById('studentName').value.trim();
+        const email = document.getElementById('studentEmail').value.trim();
+        const studentClass = document.getElementById('studentClass').value.trim();
+        const roll = document.getElementById('studentRoll').value.trim();
         const password = document.getElementById('password').value.trim();
         const confirmPassword = document.getElementById('confirmPassword').value.trim();
     
@@ -281,12 +290,20 @@ $containerNav = 'container-xxl';
             document.getElementById('emailError').classList.add('d-none');
         }
     
-        //subject validation 
-        if (!subject) {
-            document.getElementById('subjectError').classList.remove('d-none');
+        //class validation 
+        if (!studentClass) {
+            document.getElementById('classError').classList.remove('d-none');
             isValid = false;
         } else {
-            document.getElementById('subjectError').classList.add('d-none');
+            document.getElementById('classError').classList.add('d-none');
+        }
+
+        //Roll number validation 
+        if (!roll) {
+            document.getElementById('rollError').classList.remove('d-none');
+            isValid = false;
+        } else {
+            document.getElementById('rollError').classList.add('d-none');
         }
     
         // Password validation
@@ -306,7 +323,7 @@ $containerNav = 'container-xxl';
         }
     
         if (isValid) {
-            const submitButton = document.querySelector('.addTeacherButton');
+            const submitButton = document.querySelector('.addStudentButton');
             const originalButtonText = submitButton.innerHTML;
             submitButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Saving...`;
             submitButton.disabled = true;
@@ -314,23 +331,23 @@ $containerNav = 'container-xxl';
             if (id === '') {
                 try {
                     // Perform AJAX call using fetch
-                    const response = await fetch('/admin/teacher', {
+                    const response = await fetch('/admin/student', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), // For Laravel CSRF protection
                         },
-                        body: JSON.stringify({ name, email, password, subject }),
+                        body: JSON.stringify({ name, email, password, studentClass,roll }),
                     });
     
                     // Parse JSON response
                     const result = await response.json();
     
                     if (response.status == 201) {
-                        // alert('Admin added successfully!');
     
                         // Reset form
                         this.reset();
+                        console.log(result);
     
                         // update teacher list
                         const teachersList = document.getElementById('teachersList');

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('class_id')->constrained('classes')->onDelete('cascade');
             $table->foreignId('parent_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->integer('roll_number')->unique();
+            $table->integer('status')->default(1);
             $table->timestamps();
         });
     }

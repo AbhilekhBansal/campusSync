@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Classes;
+use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\User;
@@ -19,7 +21,7 @@ class AdminController extends Controller
     {
         return view('admin.dashboard.admin-dashboard');
     }
-
+    // Admin
     public function manageAdmin(Request $request)
     {
         $admins = User::with('admin')->where('role', '=', 'admin')->get();
@@ -138,7 +140,142 @@ class AdminController extends Controller
         $admin = User::with('admin')->where('id', $id)->first();
         return response()->json(['success' => 'Admin fetched successfully!', 'admin' => $admin], 200);
     }
-    //teachers
+    // Student
+    public function manageStudent(Request $request)
+    {
+        $students = User::with(['student.class'])
+            ->where('role', '=', 'student')
+            ->get();
+        // return $students;
+        $subjects = Subject::all();
+        $classes = Classes::all();
+
+        return view('admin.manage-students.student-list', compact('students', 'subjects', 'classes'));
+    }
+
+    public function createStudent(Request $request)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+            'studentClass' => 'required|integer|exists:classes,id',
+            'roll' => 'required|integer|min:10,max:10',
+        ]);
+
+
+        $student = User::create([
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'password' => bcrypt($validatedData['password']), // Hash the password
+            'role' => 'student',
+        ]);
+
+        Student::create([
+            'user_id' => $student->id,
+            'class_id' => $validatedData['studentClass'],
+            'roll_number' => $validatedData['roll'],
+            'status' => 1,
+        ]);
+        $students = User::with(['student.class'])->where('role', '=', 'student')->get();
+        // return $students;
+        return response()->json(['success' => 'Student added successfully!', 'students' => $students], 201);
+    }
+
+    public function updateStudentStatus(Request $request)
+    {
+        $validatedData = Validator::make(['id' => (int)$request->id], [
+            'id' => 'required|integer|exists:teachers,user_id',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => $validatedData->errors()], 400);
+        }
+        $teacher = Teacher::where('user_id', $request->id)->first();
+        $teacher->status = $teacher->status == 1 ? 0 : 1;
+        $teacher->save();
+        return response()->json(['success' => 'Teacher status updated successfully!', 'teacher' => $teacher], 200);
+    }
+
+    public function deleteStudent(Request $request)
+    {
+        $validatedData = Validator::make(['id' => (int)$request->id], [
+            'id' => 'required|integer|exists:teachers,user_id',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => $validatedData->errors()], 400);
+        }
+        User::where('id', $request->id)->delete();
+        return response()->json(['success' => 'Teacher deleted successfully!'], 200);
+    }
+
+    public function getStudent(Request $request)
+    {
+        $validatedData = Validator::make(['id' => (int)$request->id], [
+            'id' => 'required|integer|exists:teachers,user_id',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => $validatedData->errors()], 400);
+        }
+        $teacher = User::with(['teacher.subject'])->where('id', $request->id)->first();
+        // return $teacher;
+        return response()->json(['success' => 'Teacher fetched successfully!', 'teacher' => $teacher], 200);
+    }
+
+    public function updateStudent(Request $request, $id)
+    {
+        $validatedData = Validator::make(array_merge($request->all(), ["id" => $id]), [
+            'id' => 'required|integer|exists:teachers,user_id',
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:6',
+            'subject' => 'nullable|integer|exists:subjects,id',
+        ])->after(function ($validator) use ($request) {
+
+            if (
+                !$request->filled('name') && !$request->filled('email') &&
+                !$request->filled('password') && !$request->filled('subject')
+            ) {
+                $validator->errors()->add('fields', 'At least one field (name, email, subject, or password) must be provided.');
+            }
+        });
+
+        if ($validatedData->fails()) {
+            return response()->json(['error' => $validatedData->errors()], 400);
+        }
+
+        $teacher = User::where('id', $id)->first();
+        if (!$teacher) {
+            return response()->json(['error' => 'Teacher not found'], 404);
+        }
+
+        if ($request->filled('name')) {
+            $teacher->name = $request->name;
+        }
+
+        if ($request->filled('email')) {
+            $teacher->email = $request->email;
+        }
+
+        if ($request->filled('password')) {
+            $teacher->password = bcrypt($request->password);
+        }
+
+        $teacher->save();
+
+        if ($request->filled('subject')) {
+            $teacher->teacher->subject_id = $request->subject;
+            $teacher->teacher->save();
+        }
+
+        $teachers = User::with(['teacher.subject'])->where('role', 'teacher')->get();
+
+        return response()->json([
+            'success' => 'Teacher updated successfully!',
+            'teachers' => $teachers,
+        ], 200);
+    }
+
+    // Teachers
     public function manageTeachers(Request $request)
     {
         $teachs = User::with(['teacher.subject'])
