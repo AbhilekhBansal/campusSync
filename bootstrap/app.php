@@ -4,6 +4,7 @@ use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Auth;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,7 +19,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->redirectTo(
             guests: 'login',
-            users: 'dashboard'
+            users: fn() => match (Auth::user()->role) {
+                'superadmin' => route('admin.dashboard'),
+                'admin' => route('admin.dashboard'),
+                'teacher' => route('teacher.dashboard'),
+                'student' => route('student.dashboard'),
+                default => route('dashboard'), // Fallback
+            }
         );
     })
     ->withExceptions(function (Exceptions $exceptions) {

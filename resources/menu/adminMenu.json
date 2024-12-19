@@ -1,32 +1,43 @@
 {
   "menu": [
     {
-      "url": "/dashboard",
+      "url": "/admin/dashboard",
       "name": "Dashboards",
       "icon": "menu-icon tf-icons fas fa-house",
       "slug": "dashboard"
     },
     {
-      "menuHeader": "Pages"
+      "menuHeader": "Users"
     },
     {
-      "url": "/admins",
-      "name": "Manage Admins",
-      "icon": "menu-icon tf-icons fas fa-user-shield ",
-      "slug": "admins",
-      "role": "superadmin"
-    },
-    {
-      "url": "/teachers",
-      "name": "Manage Teachers",
-      "icon": "menu-icon tf-icons fas fa-chalkboard-user",
-      "slug": "teachers"
-    },
-    {
-      "url": "/students",
-      "name": "Manage Students",
-      "icon": "menu-icon tf-icons fas fa-user-graduate",
-      "slug": "students"
+      "name": "Manage Users",
+      "icon": "menu-icon tf-icons fas fa-users",
+      "slug": [
+        "admins",
+        "teachers",
+        "users"
+      ],
+      "submenu": [
+        {
+          "url": "/admin/admins",
+          "name": "Manage Admins",
+          "icon": "menu-icon tf-icons fas fa-user-shield !text-sm",
+          "slug": "admins",
+          "role": "superadmin"
+        },
+        {
+          "url": "/admin/teachers",
+          "name": "Manage Teachers",
+          "icon": "menu-icon tf-icons fas fa-chalkboard-user !text-sm",
+          "slug": "teachers"
+        },
+        {
+          "url": "/admin/students",
+          "name": "Manage Students",
+          "icon": "menu-icon tf-icons fas fa-user-graduate !text-sm",
+          "slug": "students"
+        }
+      ]
     }
   ]
 }

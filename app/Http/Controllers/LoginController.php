@@ -14,29 +14,41 @@ class LoginController extends Controller
         return view('content.authentications.login');
     }
 
+
     public function authenticate(Request $request)
     {
-        // Validate the input
-        $validate = Validator::make($request->all(), [
+        // Validate input
+        $validated = $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:6',
         ]);
 
-        if ($validate->fails()) {
-            // Redirect back with validation errors
-            return redirect()->back()->withInput()->withErrors($validate);
+        // Attempt login
+        if (Auth::attempt($validated)) {
+            $user = Auth::user();
+
+            if (in_array($user->role, ['admin', 'superadmin'])) {
+                return redirect()->route('admin.dashboard')->with('status', 'Welcome back, ' . $user->name . '!');
+            }
+
+            if (in_array($user->role, ['student'])) {
+                return redirect()->route('student.dashboard')->with('status', 'Welcome back, ' . $user->name . '!');
+            }
+            if (in_array($user->role, ['teacher'])) {
+                return redirect()->route('teacher.dashboard')->with('status', 'Welcome back, ' . $user->name . '!');
+            }
+
+            Auth::logout();
+            return redirect()->route('login')->withErrors(['email' => 'You do not have admin access.']);
         }
 
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-
-            return redirect()->route('dashboard');
-        } else {
-            return redirect()->route('login')->withErrors(['email' => 'Invalid email or password'])->withInput();
-        }
+        return redirect()->route('login')->withErrors(['email' => 'Invalid email or password'])->withInput();
     }
     public function logout(Request $request)
     {
         Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         return redirect()->route('login');
     }
 }

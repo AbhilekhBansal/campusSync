@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role'
     ];
 
     /**
@@ -63,5 +64,9 @@ class User extends Authenticatable
     public function assignments()
     {
         return $this->hasMany(Assignment::class, 'created_by');
+    }
+    public function admin()
+    {
+        return $this->hasOne(Admin::class, 'user_id', 'id');
     }
 }
