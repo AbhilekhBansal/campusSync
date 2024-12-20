@@ -4,7 +4,7 @@
       "url": "/admin/dashboard",
       "name": "Dashboards",
       "icon": "menu-icon tf-icons fas fa-house",
-      "slug": "dashboard"
+      "slug": "admin.dashboard"
     },
     {
       "menuHeader": "Users"
@@ -21,20 +21,20 @@
         {
           "url": "/admin/admins",
           "name": "Manage Admins",
-          "icon": "menu-icon tf-icons fas fa-user-shield !text-sm",
+          "icon": "menu-icon tf-icons fas fa-user-shield !text-xs",
           "slug": "admins",
           "role": "superadmin"
         },
         {
           "url": "/admin/teachers",
           "name": "Manage Teachers",
-          "icon": "menu-icon tf-icons fas fa-chalkboard-user !text-sm",
+          "icon": "menu-icon tf-icons fas fa-chalkboard-user !text-xs",
           "slug": "teachers"
         },
         {
           "url": "/admin/students",
           "name": "Manage Students",
-          "icon": "menu-icon tf-icons fas fa-user-graduate !text-sm",
+          "icon": "menu-icon tf-icons fas fa-user-graduate !text-xs",
           "slug": "students"
         }
       ]

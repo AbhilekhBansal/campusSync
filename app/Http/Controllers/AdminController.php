@@ -197,27 +197,27 @@ class AdminController extends Controller
     public function updateStudentStatus(Request $request)
     {
         $validatedData = Validator::make(['id' => (int)$request->id], [
-            'id' => 'required|integer|exists:teachers,user_id',
+            'id' => 'required|integer|exists:students,user_id',
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => $validatedData->errors()], 400);
         }
-        $teacher = Teacher::where('user_id', $request->id)->first();
-        $teacher->status = $teacher->status == 1 ? 0 : 1;
-        $teacher->save();
-        return response()->json(['success' => 'Teacher status updated successfully!', 'teacher' => $teacher], 200);
+        $student = Student::where('user_id', $request->id)->first();
+        $student->status = $student->status == 1 ? 0 : 1;
+        $student->save();
+        return response()->json(['success' => 'Student status updated successfully!', 'student' => $student], 200);
     }
 
     public function deleteStudent(Request $request)
     {
         $validatedData = Validator::make(['id' => (int)$request->id], [
-            'id' => 'required|integer|exists:teachers,user_id',
+            'id' => 'required|integer|exists:students,user_id',
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => $validatedData->errors()], 400);
         }
         User::where('id', $request->id)->delete();
-        return response()->json(['success' => 'Teacher deleted successfully!'], 200);
+        return response()->json(['success' => 'Student deleted successfully!'], 200);
     }
 
     public function getStudent(Request $request)
