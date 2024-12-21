@@ -51,6 +51,13 @@ Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin')->group(fun
     Route::patch('/student/{id}', [AdminController::class, 'updateStudentStatus'])->name('student');
     Route::put('/student/{id}', [AdminController::class, 'updateStudent'])->name('student');
     Route::delete('/student/{id}', [AdminController::class, 'deleteStudent'])->name('student');
+    // manage classes
+    Route::get('/classes', [AdminController::class, 'manageClasses'])->name('classes');
+    Route::get('/class/{id}', [AdminController::class, 'getStudent'])->name('class');
+    Route::post('/class', [AdminController::class, 'createClass'])->name('class');
+    Route::patch('/class/{id}', [AdminController::class, 'updateStudentStatus'])->name('class');
+    Route::put('/class/{id}', [AdminController::class, 'updateStudent'])->name('class');
+    Route::delete('/class/{id}', [AdminController::class, 'deleteStudent'])->name('class');
 });
 
 // Teacher Routes

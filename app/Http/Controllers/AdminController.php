@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -193,7 +194,6 @@ class AdminController extends Controller
         ], 201);
     }
 
-
     public function updateStudentStatus(Request $request)
     {
         $validatedData = Validator::make(['id' => (int)$request->id], [
@@ -367,6 +367,151 @@ class AdminController extends Controller
     }
 
     public function updateTeacher(Request $request, $id)
+    {
+        $validatedData = Validator::make(array_merge($request->all(), ["id" => $id]), [
+            'id' => 'required|integer|exists:teachers,user_id',
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:6',
+            'subject' => 'nullable|integer|exists:subjects,id',
+        ])->after(function ($validator) use ($request) {
+
+            if (
+                !$request->filled('name') && !$request->filled('email') &&
+                !$request->filled('password') && !$request->filled('subject')
+            ) {
+                $validator->errors()->add('fields', 'At least one field (name, email, subject, or password) must be provided.');
+            }
+        });
+
+        if ($validatedData->fails()) {
+            return response()->json(['error' => $validatedData->errors()], 400);
+        }
+
+        $teacher = User::where('id', $id)->first();
+        if (!$teacher) {
+            return response()->json(['error' => 'Teacher not found'], 404);
+        }
+
+        if ($request->filled('name')) {
+            $teacher->name = $request->name;
+        }
+
+        if ($request->filled('email')) {
+            $teacher->email = $request->email;
+        }
+
+        if ($request->filled('password')) {
+            $teacher->password = bcrypt($request->password);
+        }
+
+        $teacher->save();
+
+        if ($request->filled('subject')) {
+            $teacher->teacher->subject_id = $request->subject;
+            $teacher->teacher->save();
+        }
+
+        $teachers = User::with(['teacher.subject'])->where('role', 'teacher')->get();
+
+        return response()->json([
+            'success' => 'Teacher updated successfully!',
+            'teachers' => $teachers,
+        ], 200);
+    }
+
+    // Classes
+    public function manageClasses(Request $request)
+    {
+        $classes = Classes::withCount(['students' => function ($query) {
+            $query->where('status', 1); // Apply the status filter on students
+        }])
+            ->with(['subjects' => function ($query) {
+                $query->withCount('teachers'); // Count teachers per subject
+            }])
+            ->get();
+
+        // return $classes;
+
+        // return $classes;
+        // $subjects = Subject::all();
+
+        return view('admin.manage-classes', compact('classes'));
+    }
+
+    public function createClass(Request $request)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'section' => [
+                'required',
+                'string',
+                Rule::unique('classes')->where(function ($query) use ($request) {
+                    return $query->where('name', $request->name);
+                })
+            ],
+
+        ]);
+
+
+        Classes::create([
+            'name' => $validatedData['name'],
+            'section' => $validatedData['section'],
+
+        ]);
+
+
+        $classes = Classes::withCount(['students' => function ($query) {
+            $query->where('status', 1); // Apply the status filter on students
+        }])
+            ->with(['subjects' => function ($query) {
+                $query->withCount('teachers'); // Count teachers per subject
+            }])
+            ->get();
+
+        return response()->json(['success' => 'Class added successfully!', 'classes' => $classes], 201);
+    }
+
+    public function updateClassStatus(Request $request)
+    {
+        $validatedData = Validator::make(['id' => (int)$request->id], [
+            'id' => 'required|integer|exists:teachers,user_id',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => $validatedData->errors()], 400);
+        }
+        $teacher = Teacher::where('user_id', $request->id)->first();
+        $teacher->status = $teacher->status == 1 ? 0 : 1;
+        $teacher->save();
+        return response()->json(['success' => 'Teacher status updated successfully!', 'teacher' => $teacher], 200);
+    }
+
+    public function deleteClass(Request $request)
+    {
+        $validatedData = Validator::make(['id' => (int)$request->id], [
+            'id' => 'required|integer|exists:teachers,user_id',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => $validatedData->errors()], 400);
+        }
+        User::where('id', $request->id)->delete();
+        return response()->json(['success' => 'Teacher deleted successfully!'], 200);
+    }
+
+    public function getClass(Request $request)
+    {
+        $validatedData = Validator::make(['id' => (int)$request->id], [
+            'id' => 'required|integer|exists:teachers,user_id',
+        ]);
+        if ($validatedData->fails()) {
+            return response()->json(['error' => $validatedData->errors()], 400);
+        }
+        $teacher = User::with(['teacher.subject'])->where('id', $request->id)->first();
+        // return $teacher;
+        return response()->json(['success' => 'Teacher fetched successfully!', 'teacher' => $teacher], 200);
+    }
+
+    public function updateClass(Request $request, $id)
     {
         $validatedData = Validator::make(array_merge($request->all(), ["id" => $id]), [
             'id' => 'required|integer|exists:teachers,user_id',

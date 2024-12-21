@@ -31,16 +31,23 @@
             @csrf
             <div class="mb-6">
               <label for="email" class="form-label">Email</label>
-              <input type="text" class="form-control" id="email" name="email" placeholder="Enter your email" autofocus>
+              <input type="text" class="form-control @error('email') is-invalid @enderror" id="email" name="email"
+                placeholder="Enter your email" value="{{old('email')}}" autofocus>
+              @error('email')
+              <p class="invalid-feedback">{{$message}}</p>
+              @enderror
             </div>
             <div class="mb-6 form-password-toggle">
               <label class="form-label" for="password">Password</label>
-              <div class="input-group input-group-merge">
-                <input type="password" id="password" class="form-control" name="password"
+              <div class="input-group input-group-merge @error('password') is-invalid @enderror">
+                <input type="password" id="password" class="form-control " name="password"
                   placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
                   aria-describedby="password" />
                 <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
               </div>
+              @error('password')
+              <p class="invalid-feedback">{{$message}}</p>
+              @enderror
             </div>
             <div class="mb-8">
               <div class="d-flex justify-content-between mt-8">

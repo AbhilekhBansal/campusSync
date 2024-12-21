@@ -5,7 +5,7 @@ $containerNav = 'container-xxl';
 
 @extends('layouts/contentNavbarLayout')
 
-@section('title', 'Manage Teachers')
+@section('title', 'Manage Classes')
 
 @section('headlinks')
 <!-- DataTables CSS -->
@@ -27,13 +27,13 @@ $containerNav = 'container-xxl';
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="content-left">
-                            <span class="text-heading">Total Teachers</span>
+                            <span class="text-heading">Total Classes</span>
                             <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{count($teachs)}}</h4>
+                                <h4 class="mb-0 me-2">{{count($classes)}}</h4>
 
                                 {{-- <p class="text-success mb-0">(+29%)</p> --}}
                             </div>
-                            <small class="mb-0">Total Teachers</small>
+                            <small class="mb-0">Total no. of classes</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-primary">
@@ -49,12 +49,14 @@ $containerNav = 'container-xxl';
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="content-left">
-                            <span class="text-heading">Total Subjects</span>
+                            <span class="text-heading">Total Students</span>
                             <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{$subjects->count()}}</h4>
+                                <h4 class="mb-0 me-2">{{array_sum(array_map(fn($class) => $class['students_count'],
+                                    $classes->toArray()));
+                                    }}</h4>
                                 {{-- <p class="text-success mb-0">(+18%)</p> --}}
                             </div>
-                            <small class="mb-0">Last week analytics </small>
+                            <small class="mb-0">students in classes</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-danger">
@@ -70,13 +72,13 @@ $containerNav = 'container-xxl';
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="content-left">
-                            <span class="text-heading">Active Teachers</span>
+                            <span class="text-heading">Total Teachers</span>
                             <div class="d-flex align-items-center my-1">
-                                <h4 class="mb-0 me-2">{{ $teachs->filter(fn($teachs) => $teachs->teacher['status'] ===
-                                    1)->count() }}</h4>
-                                {{-- <p class="text-danger mb-0">(-14%)</p> --}}
+                                <h4 class="mb-0 me-2">{{ $classes->sum(fn($class) =>
+                                    $class->subjects->sum('teachers_count')) }}</h4>
+                                {{-- <p class="text-danger mb-0">(-14%)</p>--}}
                             </div>
-                            <small class="mb-0">Total Teachers ({{count($teachs)}})</small>
+                            <small class="mb-0">Teachers in classes</small>
                         </div>
                         <div class="avatar">
                             <span class="avatar-initial rounded bg-label-success">
@@ -112,31 +114,30 @@ $containerNav = 'container-xxl';
     <!-- Users List Table -->
     <div class="card">
         <div class=" flex">
-            <h5 class="card-header flex-1">Teacher List</h5>
+            <h5 class="card-header flex-1">Classes</h5>
             <div class="btn-placer flex">
 
             </div>
             <button type="button" class="btn btn-primary p-2 m-auto !mr-2" data-bs-toggle="modal"
-                data-bs-target="#teacherModal">
-                <i class="fas fa-plus mr-2"></i> Add Teach
+                data-bs-target="#classModal">
+                <i class="fas fa-plus mr-2"></i> Add Class
             </button>
         </div>
         <div class="table-responsive text-nowrap !m-3 !w-[98%]">
-            <table class="table" id="teacherTable">
+            <table class="table" id="classTable">
                 <thead>
                     <tr>
                         <th>Id</th>
                         <th>Name</th>
-                        {{-- <th>Email</th> --}}
-                        <th>Subject</th>
-                        <th>Status</th>
+                        <th>Students</th>
+                        <th>Subjects(Teach.)</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody class="table-border-bottom-0 " id="teachersList">
-                    @foreach ($teachs as $index => $teach)
+                <tbody class="table-border-bottom-0 " id="classesList">
+                    @foreach ($classes as $index => $class)
 
-                    <tr id="teacherlist-{{$teach->id}}">
+                    <tr id="classlist-{{$class->id}}">
                         <td><span>{{$index+1}}</span></td>
                         <td>
                             <ul class="list-unstyled m-0 avatar-group d-flex align-items-center">
@@ -147,28 +148,33 @@ $containerNav = 'container-xxl';
                                 </li>
                                 <li>
                                     <ul>
-                                        <li><span>{{$teach->name}}</span></li>
-                                        <li><span>{{$teach->email}}</span></li>
+                                        <li><span>{{$class->name}}</span></li>
+                                        <li><span class="text-xs">Section - {{$class->section}}</span></li>
                                     </ul>
                                 </li>
                             </ul>
                         </td>
-                        {{-- <td>
-                            <span>{{$teach->email}}</span>
-                        </td> --}}
-                        <td><span>{{$teach->teacher->subject->name}}</span></td>
-                        <td><button onclick="teacherStatusChange({{$teach->id}})"
-                                id='changeStatus-{{$teach->id}}'>{!!$teach->teacher->status==1 ? '<span
-                                    class="badge badge-status bg-label-success me-1">Active</span>' :
-                                '<span class="badge badge-status bg-label-dark me-1">Inactive</span>'!!}</button></td>
+
+                        <td><span>{{$class->students_count>0 ? $class->students_count : "No Student assigned."}}</span>
+                        </td>
+                        <td>@if($class->subjects->count() > 0)
+                            <ul>@foreach ($class->subjects as $item)
+                                <li>{{$item->name}} ({{$item->teachers_count}})</li>
+                                @endforeach
+                            </ul>
+                            @else
+                            <span>No subjects assigned.</span>
+                            @endif
+                        </td>
+
                         <td>
                             <div class="dropdown flex">
 
                                 <a class="dropdown-item edit-btn" href="javascript:void(0);"
-                                    onclick="getTeacher({{$teach->id}})"><i class="bx bx-edit-alt me-1"></i>
+                                    onclick="getTeacher({{$class->id}})"><i class="bx bx-edit-alt me-1"></i>
                                 </a>
                                 <a class="dropdown-item delete-btn" href="javascript:void(0);"
-                                    onclick="deleteTeacher({{$teach->id}})"><i class="bx bx-trash me-1"></i>
+                                    onclick="deleteTeacher({{$class->id}})"><i class="bx bx-trash me-1"></i>
                                 </a>
 
                             </div>
@@ -182,68 +188,41 @@ $containerNav = 'container-xxl';
         </div>
     </div>
     <!-- Modal -->
-    <div class="modal fade" id="teacherModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="classModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel1">Add Teacher</h5>
+                    <h5 class="modal-title" id="exampleModalLabel1">Add Class</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="addTeacherForm">
+                <form id="addClassrForm">
                     <div class="modal-body">
-                        <input type="hidden" id="teacherId" name="id" value="">
+                        <input type="hidden" id="classId" name="id" value="">
                         <!-- Name Field -->
                         <div class="row">
                             <div class="col mb-3">
-                                <label for="teacherName" class="form-label">Name</label>
-                                <input type="text" id="teacherName" class="form-control" placeholder="Enter Name">
-                                <small class="text-danger d-none" id="nameError">Name is required.</small>
+                                <label for="className" class="form-label">Class Name</label>
+                                <input type="text" id="className" class="form-control" placeholder="Enter Name">
+                                <small class="text-danger d-none" id="classNameError">Class Name is required.</small>
                             </div>
                         </div>
 
-                        <!-- Email Field -->
+                        <!-- section Field -->
                         <div class="row g-3">
                             <div class="col mb-3">
-                                <label for="teacherEmail" class="form-label">Email</label>
-                                <input type="email" id="teacherEmail" class="form-control" placeholder="xxxx@xxx.xx">
-                                <small class="text-danger d-none" id="emailError">Please enter a valid email.</small>
+                                <label for="section" class="form-label">Section</label>
+                                <input type="section" id="section" class="form-control" placeholder="A,B....">
+                                <small class="text-danger d-none" id="sectionError">Please enter a section.</small>
                             </div>
 
                         </div>
-                        <div class="row g-3">
-                            <div class="col mb-3">
-                                <label for="teacherSubject" class="form-label">Subject</label>
-                                <select id="teacherSubject" class="form-select">
-                                    <option>Default select</option>
-                                    @foreach ($subjects as $subject)
-                                    <option value="{{$subject->id}}">{{$subject->name}}</option>
 
-                                    @endforeach
-                                </select>
-                                <small class="text-danger d-none" id="subjectError">Please select a subject.</small>
-                            </div>
-                        </div>
 
-                        <!-- Password and Confirm Password -->
-                        <div class="row">
-                            <div class="col mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" id="password" class="form-control" placeholder="********">
-                                <small class="text-danger d-none" id="passwordError">Password is required.</small>
-                            </div>
-                            <div class="col mb-3">
-                                <label for="confirmPassword" class="form-label">Confirm Password</label>
-                                <input type="password" id="confirmPassword" class="form-control" placeholder="********">
-                                <small class="text-danger d-none" id="confirmPasswordError">Passwords do not
-                                    match.</small>
-                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary !m-2"
+                                data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary addClassButton !m-2">Save changes</button>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary !m-2"
-                            data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary addTeacherButton !m-2">Save changes</button>
-                    </div>
                 </form>
             </div>
         </div>
@@ -276,7 +255,7 @@ $containerNav = 'container-xxl';
 
 {{-- dataTable export btn js --}}
 <script>
-    new DataTable('#teacherTable',{
+    new DataTable('#classTable',{
         dom: '<"top"lfB><"table-responsive !w-[100%]"t><"bottom"ip>',
     
         buttons: [ {
@@ -296,63 +275,39 @@ $containerNav = 'container-xxl';
 
 <script>
     //add teacher form 
-    document.getElementById('addTeacherForm').addEventListener('submit', async function (e) {
+    document.getElementById('addClassrForm').addEventListener('submit', async function (e) {
         e.preventDefault(); // Prevent form submission
     
         // Get form values
-        const id = document.getElementById('teacherId').value.trim();
-        const name = document.getElementById('teacherName').value.trim();
-        const email = document.getElementById('teacherEmail').value.trim();
-        const subject = document.getElementById('teacherSubject').value.trim();
-        const password = document.getElementById('password').value.trim();
-        const confirmPassword = document.getElementById('confirmPassword').value.trim();
+        const id = document.getElementById('classId').value.trim();
+        const name = document.getElementById('className').value.trim();
+        const section = document.getElementById('section').value.trim();
+        
     
         // Validation flags
         let isValid = true;
     
         // Name validation
         if (!name) {
-            document.getElementById('nameError').classList.remove('d-none');
+            document.getElementById('classNameError').classList.remove('d-none');
             isValid = false;
         } else {
-            document.getElementById('nameError').classList.add('d-none');
+            document.getElementById('classNameError').classList.add('d-none');
         }
     
-        // Email validation
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email || !emailPattern.test(email)) {
-            document.getElementById('emailError').classList.remove('d-none');
+       
+    
+        //section validation 
+        if (!section) {
+            document.getElementById('sectionError').classList.remove('d-none');
             isValid = false;
         } else {
-            document.getElementById('emailError').classList.add('d-none');
+            document.getElementById('sectionError').classList.add('d-none');
         }
     
-        //subject validation 
-        if (!subject) {
-            document.getElementById('subjectError').classList.remove('d-none');
-            isValid = false;
-        } else {
-            document.getElementById('subjectError').classList.add('d-none');
-        }
-    
-        // Password validation
-        if (!password && !id) {
-            document.getElementById('passwordError').classList.remove('d-none');
-            isValid = false;
-        } else {
-            document.getElementById('passwordError').classList.add('d-none');
-        }
-    
-        // Confirm password validation
-        if (password !== confirmPassword && !id) {
-            document.getElementById('confirmPasswordError').classList.remove('d-none');
-            isValid = false;
-        } else {
-            document.getElementById('confirmPasswordError').classList.add('d-none');
-        }
     
         if (isValid) {
-            const submitButton = document.querySelector('.addTeacherButton');
+            const submitButton = document.querySelector('.addClassButton');
             const originalButtonText = submitButton.innerHTML;
             submitButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Saving...`;
             submitButton.disabled = true;
@@ -360,26 +315,25 @@ $containerNav = 'container-xxl';
             if (id === '') {
                 try {
                     // Perform AJAX call using fetch
-                    const response = await fetch('/admin/teacher', {
+                    const response = await fetch('/admin/class', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), // For Laravel CSRF protection
                         },
-                        body: JSON.stringify({ name, email, password, subject }),
+                        body: JSON.stringify({ name, section}),
                     });
     
                     // Parse JSON response
                     const result = await response.json();
     
                     if (response.status == 201) {
-                        // alert('Admin added successfully!');
     
                         // Reset form
                         this.reset();
     
-                        // update teacher list
-                        const teachersList = document.getElementById('teachersList');
+                        // update class list
+                        const classList = document.getElementById('classList');
                         console.log(result);
                         let teachersListData = '';
                         $.each(result.teachs, function (index, teach) {

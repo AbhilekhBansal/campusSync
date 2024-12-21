@@ -6,18 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Classes extends Model
 {
+    protected $fillable = ['name', 'section'];
     public function subjects()
     {
-        return $this->hasMany(Subject::class);
+        return $this->hasMany(Subject::class, 'class_id');
     }
 
     public function students()
     {
-        return $this->hasMany(Student::class);
+        return $this->hasMany(Student::class, 'class_id');
     }
 
     public function exams()
     {
-        return $this->hasMany(Exam::class);
+        return $this->hasMany(Exam::class, 'class_id');
     }
 }
