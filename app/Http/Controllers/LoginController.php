@@ -27,6 +27,18 @@ class LoginController extends Controller
         if (Auth::attempt($validated)) {
             $user = Auth::user();
 
+
+            $response = isUserActive($user);
+            if (isset($response['user'])) {
+                Auth::setUser($response['user']);
+                $user = Auth::user();
+            }
+
+            if ($response['status'] !== 1) {
+                Auth::logout();
+                return redirect()->route('login')->withErrors(['email' => 'Your account is not active.']);
+            }
+
             if (in_array($user->role, ['admin', 'superadmin'])) {
                 return redirect()->route('admin.dashboard')->with('status', 'Welcome back, ' . $user->name . '!');
             }

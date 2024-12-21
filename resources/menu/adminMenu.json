@@ -7,9 +7,6 @@
       "slug": "admin.dashboard"
     },
     {
-      "menuHeader": "Users"
-    },
-    {
       "name": "Manage Users",
       "icon": "menu-icon tf-icons fas fa-users",
       "slug": [
@@ -36,6 +33,86 @@
           "name": "Manage Students",
           "icon": "menu-icon tf-icons fas fa-user-graduate !text-xs",
           "slug": "students"
+        }
+      ]
+    },
+    {
+      "name": "Classroom Management",
+      "icon": "menu-icon tf-icons fas fa-chalkboard-user",
+      "slug": [
+        "classes",
+        "subjects",
+        "attendance"
+      ],
+      "submenu": [
+        {
+          "url": "/admin/classes",
+          "name": "Manage Classes",
+          "icon": "menu-icon tf-icons fas fa-chalkboard-user",
+          "slug": "classes"
+        },
+        {
+          "url": "/admin/subjects",
+          "name": "Manage Subjects",
+          "icon": "menu-icon tf-icons fas fa-book",
+          "slug": "subjects"
+        },
+        {
+          "url": "/admin/attendance",
+          "name": "Manage Attendance",
+          "icon": "menu-icon tf-icons fas fa-clipboard",
+          "slug": "attendance"
+        }
+      ]
+    },
+    {
+      "name": "Student Assessment",
+      "icon": "menu-icon tf-icons fas fa-trophy",
+      "slug": [
+        "grades",
+        "exams",
+        "assignments"
+      ],
+      "submenu": [
+        {
+          "url": "/admin/grades",
+          "name": "Manage Grades",
+          "icon": "menu-icon tf-icons fas fa-award",
+          "slug": "grades"
+        },
+        {
+          "url": "/admin/exams",
+          "name": "Manage Exams",
+          "icon": "menu-icon tf-icons fas fa-pencil",
+          "slug": "exams"
+        },
+        {
+          "url": "/admin/assignments",
+          "name": "Manage Assignments",
+          "icon": "menu-icon tf-icons fas fa-file-lines",
+          "slug": "assignments"
+        }
+      ]
+    },
+    {
+      "name": "Administration",
+      "icon": "menu-icon tf-icons fas fa-user-shield ",
+      "slug": [
+        "fees",
+        "reports"
+      ],
+      "submenu": [
+        {
+          "url": "/admin/fees",
+          "name": "Manage Fees",
+          "icon": "menu-icon tf-icons fas fa-indian-rupee-sign",
+          "slug": "fees"
+        },
+        {
+          "url": "/admin/reports",
+          "name": "Reports",
+          "icon": "menu-icon tf-icons fas fa-users",
+          "slug": "reports"
         }
       ]
     }
