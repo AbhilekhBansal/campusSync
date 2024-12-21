@@ -7,10 +7,17 @@ $containerNav = 'container-xxl';
 
 @section('title', 'Manage Teachers')
 
+@section('headlinks')
+<!-- DataTables CSS -->
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css">
+
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.2.0/css/buttons.dataTables.css">
+
+@endsection
+
 @section('content')
-<!-- Layout Demo -->
-
-
 
 <!-- Content -->
 <div class="col-xxl-8 flex-grow-1 ">
@@ -107,13 +114,16 @@ $containerNav = 'container-xxl';
         <div class=" flex">
 
             <h5 class="card-header flex-1">Teacher List</h5>
+            <div class="btn-placer flex">
+
+            </div>
             <button type="button" class="btn btn-primary p-2 m-auto !mr-2" data-bs-toggle="modal"
                 data-bs-target="#teacherModal">
                 <i class="fas fa-plus mr-2"></i> Add Teach
             </button>
         </div>
-        <div class="table-responsive text-nowrap">
-            <table class="table">
+        <div class="table-responsive text-nowrap !m-3 !w-[98%]">
+            <table class="table" id="teacherTable">
                 <thead>
                     <tr>
                         <th>Id</th>
@@ -248,6 +258,43 @@ $containerNav = 'container-xxl';
 
 
 <!--/ Layout Demo -->
+
+@endsection
+
+@section('page-script')
+
+<!-- DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<!-- DataTables Buttons JS -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+<!-- JSZip (for Excel export) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+{{-- dataTable export btn js --}}
+<script>
+    new DataTable('#teacherTable',{
+        dom: '<"top"lfB><"table-responsive !w-[100%]"t><"bottom"ip>',
+    
+        buttons: [ {
+                extend: 'collection',
+                text: 'Export',  // Button label
+                buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],  // Dropdown items
+                className: ' btn-secondary dropdown-toggle p-2 m-auto !mr-2 '  // Custom class for 
+            }],
+            initComplete: function () {
+            // Move the export button to the flex container
+            var exportBtn = $('.dt-button').detach(); // Detach export button
+            exportBtn.html('<i class="bx bx-export mr-2"></i> Export'); 
+            $('.btn-placer').append(exportBtn); // Append to the flex container
+        }
+    });
+</script>
+
 <script>
     //add teacher form 
     document.getElementById('addTeacherForm').addEventListener('submit', async function (e) {
@@ -602,6 +649,5 @@ $containerNav = 'container-xxl';
         }
     }
 </script>
-
 
 @endsection
