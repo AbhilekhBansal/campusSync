@@ -171,7 +171,7 @@ $containerNav = 'container-xxl';
                             <div class="dropdown flex">
 
                                 <a class="dropdown-item edit-btn" href="javascript:void(0);"
-                                    onclick="getTeacher({{$class->id}})"><i class="bx bx-edit-alt me-1"></i>
+                                    onclick="openClassModel({{$class->id}})"><i class="bx bx-edit-alt me-1"></i>
                                 </a>
                                 <a class="dropdown-item delete-btn" href="javascript:void(0);"
                                     onclick="deleteTeacher({{$class->id}})"><i class="bx bx-trash me-1"></i>

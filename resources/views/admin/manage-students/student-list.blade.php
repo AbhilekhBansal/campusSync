@@ -147,7 +147,7 @@ $containerNav = 'container-xxl';
                         <td>
                             <ul class="list-unstyled m-0 avatar-group d-flex align-items-center">
                                 <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
-                                    class="avatar avatar-sm mr-3" title="Lilian Fuller">
+                                    class="avatar avatar-sm mr-3" title="{{$student->name}}">
                                     <img src="{{asset('assets/img/avatars/5.png')}}" alt="Avatar"
                                         class="rounded-circle">
                                 </li>
@@ -162,7 +162,7 @@ $containerNav = 'container-xxl';
                         <td>
                             <span>{{$student->student->roll_number}}</span>
                         </td>
-                        <td><span>{{$student->student->class->name}}</span></td>
+                        <td><span>{{$student->student->class->name}}({{$student->student->class->section}})</span></td>
                         <td><button onclick="studentStatusChange({{$student->id}})"
                                 id='changeStatus-{{$student->id}}'>{!!$student->student->status==1 ? '<span
                                     class="badge badge-status bg-label-success me-1">Active</span>' :
@@ -222,7 +222,7 @@ $containerNav = 'container-xxl';
                                 <select id="studentClass" class="form-select">
                                     <option selected>Select Class</option>
                                     @foreach ($classes as $class)
-                                    <option value="{{$class->id}}">{{$class->name}}</option>
+                                    <option value="{{$class->id}}">{{$class->name}}({{$class->section}})</option>
 
                                     @endforeach
                                 </select>
@@ -684,7 +684,7 @@ $containerNav = 'container-xxl';
             const classOption = document.createElement('option');
 
             classOption.value = student.student.class_id;
-            classOption.textContent = student.student.class.name;
+            classOption.textContent = student.student.class.name+'('+student.student.class.section+')';
             classOption.selected = true;
 
             // teacherSubject.appendChild(subjectOption);
