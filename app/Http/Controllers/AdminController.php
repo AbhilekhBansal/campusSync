@@ -498,17 +498,27 @@ class AdminController extends Controller
         return response()->json(['success' => 'Teacher deleted successfully!'], 200);
     }
 
-    public function getClass(Request $request)
+    public function getClass(Request $request, $id)
     {
         $validatedData = Validator::make(['id' => (int)$request->id], [
-            'id' => 'required|integer|exists:teachers,user_id',
+            'id' => 'required|integer|exists:classes,id',
         ]);
         if ($validatedData->fails()) {
             return response()->json(['error' => $validatedData->errors()], 400);
         }
-        $teacher = User::with(['teacher.subject'])->where('id', $request->id)->first();
-        // return $teacher;
-        return response()->json(['success' => 'Teacher fetched successfully!', 'teacher' => $teacher], 200);
+
+        $class = Classes::with([
+            'students' => function ($query) {
+                $query->where('status', 1);
+            },
+            'subjects' => function ($query) {
+                $query->withCount('teachers');
+            }
+        ])
+            ->find($id);  // This will retrieve the class by its ID
+
+
+        return response()->json(['success' => 'Class fetched successfully!', 'class' => $class], 200);
     }
 
     public function updateClass(Request $request, $id)

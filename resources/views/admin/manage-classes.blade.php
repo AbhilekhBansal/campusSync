@@ -187,7 +187,7 @@ $containerNav = 'container-xxl';
             </table>
         </div>
     </div>
-    <!-- Modal -->
+    <!-- Add Class Modal -->
     <div class="modal fade" id="classModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -195,28 +195,26 @@ $containerNav = 'container-xxl';
                     <h5 class="modal-title" id="exampleModalLabel1">Add Class</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="addClassrForm">
+                <form id="addClassForm">
                     <div class="modal-body">
-                        <input type="hidden" id="classId" name="id" value="">
+                        <input type="hidden" id="addClassId" name="id" value="">
                         <!-- Name Field -->
                         <div class="row">
                             <div class="col mb-3">
-                                <label for="className" class="form-label">Class Name</label>
-                                <input type="text" id="className" class="form-control" placeholder="Enter Name">
-                                <small class="text-danger d-none" id="classNameError">Class Name is required.</small>
+                                <label for="addClassName" class="form-label">Class Name</label>
+                                <input type="text" id="addClassName" class="form-control" placeholder="Enter Name">
+                                <small class="text-danger d-none" id="addClassNameError">Class Name is required.</small>
                             </div>
                         </div>
 
-                        <!-- section Field -->
+                        <!-- Section Field -->
                         <div class="row g-3">
                             <div class="col mb-3">
-                                <label for="section" class="form-label">Section</label>
-                                <input type="section" id="section" class="form-control" placeholder="A,B....">
-                                <small class="text-danger d-none" id="sectionError">Please enter a section.</small>
+                                <label for="addSection" class="form-label">Section</label>
+                                <input type="text" id="addSection" class="form-control" placeholder="A,B....">
+                                <small class="text-danger d-none" id="addSectionError">Please enter a section.</small>
                             </div>
-
                         </div>
-
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary !m-2"
@@ -227,7 +225,46 @@ $containerNav = 'container-xxl';
             </div>
         </div>
     </div>
+</div>
+<!-- Update Class Modal -->
+<div class="modal fade" id="updateClassModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel2">Update Class Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="updateClassForm">
+                <div class="modal-body">
+                    <input type="hidden" id="updateClassId" name="id" value="">
+                    <!-- Name Field -->
+                    <div class="row">
+                        <div class="col mb-3">
+                            <label for="updateClassName" class="form-label">Class Name</label>
+                            <input type="text" id="updateClassName" class="form-control" placeholder="Enter Name">
+                            <small class="text-danger d-none" id="updateClassNameError">Class Name is
+                                required.</small>
+                        </div>
+                    </div>
 
+                    <!-- Section Field -->
+                    <div class="row g-3">
+                        <div class="col mb-3">
+                            <label for="updateSection" class="form-label">Section</label>
+                            <input type="text" id="updateSection" class="form-control" placeholder="A,B....">
+                            <small class="text-danger d-none" id="updateSectionError">Please enter a
+                                section.</small>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary !m-2"
+                            data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary updateClassButton !m-2">Save changes</button>
+                    </div>
+            </form>
+        </div>
+    </div>
 </div>
 <!-- / Content -->
 
@@ -274,14 +311,14 @@ $containerNav = 'container-xxl';
 </script>
 
 <script>
-    //add teacher form 
-    document.getElementById('addClassrForm').addEventListener('submit', async function (e) {
+    //add class form 
+    document.getElementById('addClassForm').addEventListener('submit', async function (e) {
         e.preventDefault(); // Prevent form submission
     
         // Get form values
         const id = document.getElementById('classId').value.trim();
-        const name = document.getElementById('className').value.trim();
-        const section = document.getElementById('section').value.trim();
+        const name = document.getElementById('addClassName').value.trim();
+        const section = document.getElementById('addSection').value.trim();
         
     
         // Validation flags
@@ -289,20 +326,20 @@ $containerNav = 'container-xxl';
     
         // Name validation
         if (!name) {
-            document.getElementById('classNameError').classList.remove('d-none');
+            document.getElementById('addClassNameError').classList.remove('d-none');
             isValid = false;
         } else {
-            document.getElementById('classNameError').classList.add('d-none');
+            document.getElementById('addClassNameError').classList.add('d-none');
         }
     
        
     
         //section validation 
         if (!section) {
-            document.getElementById('sectionError').classList.remove('d-none');
+            document.getElementById('addSectionError').classList.remove('d-none');
             isValid = false;
         } else {
-            document.getElementById('sectionError').classList.add('d-none');
+            document.getElementById('addSectionError').classList.add('d-none');
         }
     
     
@@ -519,12 +556,12 @@ $containerNav = 'container-xxl';
     }
     
     
-    function getTeacher(id) {
-        var myModal = new bootstrap.Modal(document.getElementById('teacherModal'), {});
+    function openClassModel(id) {
+        var myModal = new bootstrap.Modal(document.getElementById('updateClassModal'), {});
         myModal.show();
     
         // Perform AJAX call to get admin data by ID
-        fetch('/admin/teacher/' + id, {
+        fetch('/admin/class/' + id, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -534,7 +571,7 @@ $containerNav = 'container-xxl';
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                populateForm(data.teacher);
+                // populateForm(data.class);
             } else {
                 console.error('Failed to fetch admin data:', data.error);
             }
@@ -544,23 +581,23 @@ $containerNav = 'container-xxl';
         });
     }
     
-    function populateForm(teacher) {
-        document.getElementById('teacherName').value = teacher.name;
-        document.getElementById('teacherEmail').value = teacher.email;
-        document.getElementById('teacherId').value = teacher.id;
-        // document.getElementById('teacherSubject').innerhtml = '<option value='+teacher.teacher.subject_id+' selected>'+teacher.teacher.subject.name+'</option>';
+    // function populateForm(class) {
+        // document.getElementById('teacherName').value = teacher.name;
+        // document.getElementById('teacherEmail').value = teacher.email;
+        // document.getElementById('teacherId').value = teacher.id;
+        // // document.getElementById('teacherSubject').innerhtml = '<option value='+teacher.teacher.subject_id+' selected>'+teacher.teacher.subject.name+'</option>';
 
-        const teacherSubject = document.getElementById('teacherSubject');
-        const subjectOption = document.createElement('option');
+        // const teacherSubject = document.getElementById('teacherSubject');
+        // const subjectOption = document.createElement('option');
 
-        subjectOption.value = teacher.teacher.subject_id;
-        subjectOption.textContent = teacher.teacher.subject.name;
-        subjectOption.selected = true;
+        // subjectOption.value = teacher.teacher.subject_id;
+        // subjectOption.textContent = teacher.teacher.subject.name;
+        // subjectOption.selected = true;
 
-        // teacherSubject.appendChild(subjectOption);
-        teacherSubject.insertBefore(subjectOption, teacherSubject.firstChild); // Insert at the top
+        // // teacherSubject.appendChild(subjectOption);
+        // teacherSubject.insertBefore(subjectOption, teacherSubject.firstChild); // Insert at the top
 
-    }
+    // }
     
     async function editAdmin(id) {
         try {

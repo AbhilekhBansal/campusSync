@@ -53,7 +53,7 @@ Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin')->group(fun
     Route::delete('/student/{id}', [AdminController::class, 'deleteStudent'])->name('student');
     // manage classes
     Route::get('/classes', [AdminController::class, 'manageClasses'])->name('classes');
-    Route::get('/class/{id}', [AdminController::class, 'getStudent'])->name('class');
+    Route::get('/class/{id}', [AdminController::class, 'getClass'])->name('class');
     Route::post('/class', [AdminController::class, 'createClass'])->name('class');
     Route::patch('/class/{id}', [AdminController::class, 'updateStudentStatus'])->name('class');
     Route::put('/class/{id}', [AdminController::class, 'updateStudent'])->name('class');
