@@ -25,7 +25,7 @@ function isUserActive($user)
 
     // Special case for Superadmin
     if ($relatedTable === 'Superadmin') {
-        $response['status'] = true;
+        $response['status'] = 1;
         return $response;
     }
 

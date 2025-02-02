@@ -316,7 +316,7 @@ $containerNav = 'container-xxl';
         e.preventDefault(); // Prevent form submission
     
         // Get form values
-        const id = document.getElementById('classId').value.trim();
+        // const id = document.getElementById('classId').value.trim();
         const name = document.getElementById('addClassName').value.trim();
         const section = document.getElementById('addSection').value.trim();
         
@@ -349,7 +349,7 @@ $containerNav = 'container-xxl';
             submitButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Saving...`;
             submitButton.disabled = true;
     
-            if (id === '') {
+            // if (id === '') {
                 try {
                     // Perform AJAX call using fetch
                     const response = await fetch('/admin/class', {
@@ -370,53 +370,59 @@ $containerNav = 'container-xxl';
                         this.reset();
     
                         // update class list
-                        const classList = document.getElementById('classList');
+                        const classList = document.getElementById('classesList');
                         console.log(result);
-                        let teachersListData = '';
-                        $.each(result.teachs, function (index, teach) {
+                        let classListData = '';
+                        $.each(result.classes, function (index, classItem) {
     
-                            teachersListData += `
+                            classListData += `
                             <tr>
-                                <td><span>${index + 1}</span></td>
-                                <td>
-                                    <ul class="list-unstyled m-0 avatar-group d-flex align-items-center">
-                                        <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
-                                            class="avatar avatar-sm mr-3" title="Lilian Fuller">
-                                            <img src="/assets/img/avatars/5.png" alt="Avatar"
-                                                class="rounded-circle">
-                                        </li>
-                                        <li>
-                                        <ul>
-                                            <li><span>${teach.name}</span></li>
-                                            <li><span>${teach.email}</span></li>
-                                        </ul>
-                                    </li>
-                                    </ul>
-                                </td>
-                                <td>
-                                    <span>${teach.teacher.subject.name}</span>
-                                </td>
-                                <td> <button onclick="teacherStatusChange(${teach.id})"
-                                    id='changeStatus-${teach.id}'>${teach.teacher.status == 1
-                                    ? '<span class="badge bg-label-success me-1">Active</span>'
-                                    : '<span class="badge bg-label-dark me-1">Inactive</span>'} </button></td>
-                                <td>
-                                    <div class="dropdown flex">
-                                         <a class="dropdown-item edit-btn" href="javascript:void(0);"
-                                        onclick="getTeacher(${teach.id})"><i class="bx bx-edit-alt me-1"></i>
-                                    </a>
-                                    <a class="dropdown-item delete-btn" href="javascript:void(0);"
-                                        onclick="deleteTeacher(${teach.id})"><i class="bx bx-trash me-1"></i>
-                                    </a>
-                                    </div>
-                                </td>
-                            </tr>
+            <td><span>${index + 1}</span></td>
+            <td>
+                <ul class="list-unstyled m-0 avatar-group d-flex align-items-center">
+                    <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
+                        class="avatar avatar-sm mr-3" title="${classItem.teacher_name || 'Teacher'}">
+                        <img src="{{ asset('assets/img/avatars/5.png') }}" alt="Avatar" class="rounded-circle">
+                    </li>
+                    <li>
+                        <ul>
+                            <li><span>${classItem.name}</span></li>
+                            <li><span class="text-xs">Section - ${classItem.section}</span></li>
+                        </ul>
+                    </li>
+                </ul>
+            </td>
+            <td>
+                <span>${classItem.students_count > 0 ? classItem.students_count : "No Student assigned."}</span>
+            </td>
+            <td>
+                ${classItem.subjects.length > 0 ? `
+                <ul>
+                    ${classItem.subjects.map(subject => `
+                        <li>${subject.name} (${subject.teachers_count})</li>
+                    `).join('')}
+                </ul>` : `<span>No subjects assigned.</span>`}
+            </td>
+            <td>
+                <div class="dropdown flex">
+                    <a class="dropdown-item edit-btn" href="javascript:void(0);"
+                        onclick="getTeacher(${classItem.id})">
+                        <i class="bx bx-edit-alt me-1"></i>
+                    </a>
+                    <a class="dropdown-item delete-btn" href="javascript:void(0);"
+                        onclick="deleteTeacher(${classItem.id})">
+                        <i class="bx bx-trash me-1"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>
                             `;
                         });
-    
-                        teachersList.innerHTML = teachersListData;
+
+                       
+                        classList.innerHTML = classListData;
                         // Close modal (Bootstrap 5 method)
-                        const modalElement = document.getElementById('teacherModal');
+                        const modalElement = document.getElementById('classModal');
                         const modal = bootstrap.Modal.getInstance(modalElement);
                         modal.hide();
                     } else {
@@ -431,90 +437,90 @@ $containerNav = 'container-xxl';
                     submitButton.innerHTML = originalButtonText;
                     submitButton.disabled = false;
                 }
-            } else {
-                try {
-                    submitButton.disabled = true;
-                    submitButton.innerHTML = 'Processing...';
+            // } else {
+            //     try {
+            //         submitButton.disabled = true;
+            //         submitButton.innerHTML = 'Processing...';
     
-                    // Perform AJAX call for update admin
-                    const response = await fetch('/admin/teacher/' + id, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        },
-                        body: JSON.stringify({ name, email,subject, password }),
-                    });
+            //         // Perform AJAX call for update admin
+            //         const response = await fetch('/admin/teacher/' + id, {
+            //             method: 'PUT',
+            //             headers: {
+            //                 'Content-Type': 'application/json',
+            //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            //             },
+            //             body: JSON.stringify({ name, email,subject, password }),
+            //         });
     
-                    const result = await response.json();
+            //         const result = await response.json();
     
-                    if (response.status == 200) {
+            //         if (response.status == 200) {
     
-                        this.reset();
+            //             this.reset();
     
-                        // update teacher list
-                        const teachersList = document.getElementById('teachersList');
-                        console.log(result);
-                        let teachersListData = '';
-                        $.each(result.teachers, function (index, teach) {
+            //             // update teacher list
+            //             const teachersList = document.getElementById('teachersList');
+            //             console.log(result);
+            //             let teachersListData = '';
+            //             $.each(result.teachers, function (index, teach) {
     
-                            teachersListData += `
-                            <tr>
-                                <td><span>${index + 1}</span></td>
-                                <td>
-                                    <ul class="list-unstyled m-0 avatar-group d-flex align-items-center">
-                                        <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
-                                            class="avatar avatar-sm mr-3" title="Lilian Fuller">
-                                            <img src="/assets/img/avatars/5.png" alt="Avatar"
-                                                class="rounded-circle">
-                                        </li>
-                                        <li>
-                                        <ul>
-                                            <li><span>${teach.name}</span></li>
-                                            <li><span>${teach.email}</span></li>
-                                        </ul>
-                                    </li>
-                                    </ul>
-                                </td>
-                                <td>
-                                    <span>${teach.teacher.subject.name}</span>
-                                </td>
-                                <td> <button onclick="teacherStatusChange(${teach.id})"
-                                    id='changeStatus-${teach.id}'>${teach.teacher.status == 1
-                                    ? '<span class="badge bg-label-success me-1">Active</span>'
-                                    : '<span class="badge bg-label-dark me-1">Inactive</span>'} </button></td>
-                                <td>
-                                    <div class="dropdown flex">
-                                         <a class="dropdown-item edit-btn" href="javascript:void(0);"
-                                        onclick="getTeacher(${teach.id})"><i class="bx bx-edit-alt me-1"></i>
-                                    </a>
-                                    <a class="dropdown-item delete-btn" href="javascript:void(0);"
-                                        onclick="deleteTeacher(${teach.id})"><i class="bx bx-trash me-1"></i>
-                                    </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            `;
-                        });
+            //                 teachersListData += `
+            //                 <tr>
+            //                     <td><span>${index + 1}</span></td>
+            //                     <td>
+            //                         <ul class="list-unstyled m-0 avatar-group d-flex align-items-center">
+            //                             <li data-bs-toggle="tooltip" data-popup="tooltip-custom" data-bs-placement="top"
+            //                                 class="avatar avatar-sm mr-3" title="Lilian Fuller">
+            //                                 <img src="/assets/img/avatars/5.png" alt="Avatar"
+            //                                     class="rounded-circle">
+            //                             </li>
+            //                             <li>
+            //                             <ul>
+            //                                 <li><span>${teach.name}</span></li>
+            //                                 <li><span>${teach.email}</span></li>
+            //                             </ul>
+            //                         </li>
+            //                         </ul>
+            //                     </td>
+            //                     <td>
+            //                         <span>${teach.teacher.subject.name}</span>
+            //                     </td>
+            //                     <td> <button onclick="teacherStatusChange(${teach.id})"
+            //                         id='changeStatus-${teach.id}'>${teach.teacher.status == 1
+            //                         ? '<span class="badge bg-label-success me-1">Active</span>'
+            //                         : '<span class="badge bg-label-dark me-1">Inactive</span>'} </button></td>
+            //                     <td>
+            //                         <div class="dropdown flex">
+            //                              <a class="dropdown-item edit-btn" href="javascript:void(0);"
+            //                             onclick="getTeacher(${teach.id})"><i class="bx bx-edit-alt me-1"></i>
+            //                         </a>
+            //                         <a class="dropdown-item delete-btn" href="javascript:void(0);"
+            //                             onclick="deleteTeacher(${teach.id})"><i class="bx bx-trash me-1"></i>
+            //                         </a>
+            //                         </div>
+            //                     </td>
+            //                 </tr>
+            //                 `;
+            //             });
     
-                        teachersList.innerHTML = teachersListData;
-                        // Close modal (Bootstrap 5 method)
-                        const modalElement = document.getElementById('teacherModal');
-                        const modal = bootstrap.Modal.getInstance(modalElement);
-                        modal.hide();
-                    } else {
-                        // Handle validation or server-side errors
-                        console.log(result.message || 'An error occurred while adding the teacher.');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Something went wrong. Please try again later.');
-                } finally {
-                    // Reset button state
-                    submitButton.innerHTML = originalButtonText;
-                    submitButton.disabled = false;
-                }
-            }
+            //             teachersList.innerHTML = teachersListData;
+            //             // Close modal (Bootstrap 5 method)
+            //             const modalElement = document.getElementById('teacherModal');
+            //             const modal = bootstrap.Modal.getInstance(modalElement);
+            //             modal.hide();
+            //         } else {
+            //             // Handle validation or server-side errors
+            //             console.log(result.message || 'An error occurred while adding the teacher.');
+            //         }
+            //     } catch (error) {
+            //         console.error('Error:', error);
+            //         alert('Something went wrong. Please try again later.');
+            //     } finally {
+            //         // Reset button state
+            //         submitButton.innerHTML = originalButtonText;
+            //         submitButton.disabled = false;
+            //     }
+            // }
         }
     });
     

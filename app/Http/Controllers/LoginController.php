@@ -29,6 +29,7 @@ class LoginController extends Controller
 
 
             $response = isUserActive($user);
+            // dd($response);
             if (isset($response['user'])) {
                 Auth::setUser($response['user']);
                 $user = Auth::user();
